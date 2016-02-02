@@ -11,8 +11,7 @@ class Robot
   @registry ||= []
 
   def initialize(args = {})
-    name_generator = args.fetch(:name_generator, false)
-    @name = name_generator ? name_generator.call : generate_new_name
+    @name = args.fetch(:name_generator, method(:generate_new_name)).call
     raise NameCollisionError, NAME_ERROR_MSG if invalid_name?
     Robot.registry << @name
   end
@@ -20,11 +19,16 @@ class Robot
   private
 
   def generate_new_name
-    generate_char = -> { ('A'..'Z').to_a.sample }
-    generate_num = -> { rand(10) }
+    "#{generate_char}#{generate_char}"\
+    "#{generate_num}#{generate_num}#{generate_num}"
+  end
 
-    [Array.new(2) { generate_char.call },
-     Array.new(3) { generate_num.call }].join
+  def generate_char
+    ('A'..'Z').to_a.sample
+  end
+
+  def generate_num
+    rand(10)
   end
 
   def invalid_name?
